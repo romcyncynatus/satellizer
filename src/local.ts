@@ -30,6 +30,18 @@ class Local {
 
     return this.$http(options);
   }
+
+  createGuest(options: any = {}): angular.IHttpPromise<any> {
+    options.url = options.url ? options.url : joinUrl(this.SatellizerConfig.baseUrl, this.SatellizerConfig.createGuestUrl);
+    options.data = null || options.data;
+    options.method = options.method || 'POST';
+    options.withCredentials = options.withCredentials || this.SatellizerConfig.withCredentials;
+
+    return this.$http(options).then((response) => {
+      this.SatellizerShared.setToken(response, true);
+      return response;
+    });
+  }
 }
 
 export default Local;

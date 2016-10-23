@@ -19,14 +19,23 @@ export default class AuthProvider {
   get unlinkUrl(): string { return this.SatellizerConfig.unlinkUrl; }
   set unlinkUrl(value) { this.SatellizerConfig.unlinkUrl = value; }
 
+  get createGuestUrl(): string { return this.SatellizerConfig.createGuestUrl; }
+  set createGuestUrl(value) { this.SatellizerConfig.createGuestUrl = value; }
+
   get tokenRoot(): string { return this.SatellizerConfig.tokenRoot; }
   set tokenRoot(value) { this.SatellizerConfig.tokenRoot = value; }
 
+  get storagePrefix(): string { return this.SatellizerConfig.storagePrefix; }
+  set storagePrefix(value) { this.SatellizerConfig.storagePrefix = value; }
+
+  get storageKeyToken(): string { return this.SatellizerConfig.storageKeyToken; }
+  set storageKeyToken(value) { this.SatellizerConfig.storageKeyToken = value; }
+
+  get storageKeyIsGuest(): string { return this.SatellizerConfig.storageKeyIsGuest; }
+  set storageKeyIsGuest(value) { this.SatellizerConfig.storageKeyIsGuest = value; }
+
   get tokenName(): string { return this.SatellizerConfig.tokenName; }
   set tokenName(value) { this.SatellizerConfig.tokenName = value; }
-
-  get tokenPrefix(): string { return this.SatellizerConfig.tokenPrefix; }
-  set tokenPrefix(value) { this.SatellizerConfig.tokenPrefix = value; }
 
   get tokenHeader(): string { return this.SatellizerConfig.tokenHeader; }
   set tokenHeader(value) { this.SatellizerConfig.tokenHeader = value; }
@@ -108,12 +117,14 @@ export default class AuthProvider {
   $get(SatellizerShared, SatellizerLocal, SatellizerOAuth): any {
     return {
       login: (user, options) => SatellizerLocal.login(user, options),
+      createGuest: (options) => SatellizerLocal.createGuest(options),
       signup: (user, options) => SatellizerLocal.signup(user, options),
       logout: () => SatellizerShared.logout(),
       authenticate: (name, data) => SatellizerOAuth.authenticate(name, data),
       link: (name, data) => SatellizerOAuth.authenticate(name, data),
       unlink: (name, options) => SatellizerOAuth.unlink(name, options),
       isAuthenticated: () => SatellizerShared.isAuthenticated(),
+      isGuest: () => SatellizerShared.isGuest(),
       getPayload: () => SatellizerShared.getPayload(),
       getToken: () => SatellizerShared.getToken(),
       setToken: (token) => SatellizerShared.setToken({ access_token: token }),

@@ -29,10 +29,10 @@ describe('Shared', () => {
 
     it('should log out a user', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
       shared.logout();
-      expect(window[storageType][tokenName]).toBeFalsy();
+      expect(window[storageType][storageKeyToken]).toBeFalsy();
     });
 
   });
@@ -45,9 +45,9 @@ describe('Shared', () => {
 
     it('should get a token from Local Storage', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
-      expect(shared.getToken()).toEqual(window[storageType][tokenName]);
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+      expect(shared.getToken()).toEqual(window[storageType][storageKeyToken]);
     });
 
   });
@@ -60,8 +60,8 @@ describe('Shared', () => {
 
     it('should get a JWT payload', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAsIm5hbWUiOiJKb2huIERvZSJ9.kRkUHzvZMWXjgB4zkO3d6P1imkdp0ogebLuxnTCiYUU';
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAsIm5hbWUiOiJKb2huIERvZSJ9.kRkUHzvZMWXjgB4zkO3d6P1imkdp0ogebLuxnTCiYUU';
       const payload = shared.getPayload();
       expect(angular.isObject(payload)).toBe(true);
       expect(payload.name).toEqual('John Doe');
@@ -69,8 +69,8 @@ describe('Shared', () => {
 
     it('should get a JWT payload with non-english characters', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAsIm5hbWUiOiJSb2LDqXJ0w6AgVGjDqcO0In0.sgREDWs78UYxIMDfa9cwYqvDgco3i_Ap4MUwmprZWN0';
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAsIm5hbWUiOiJSb2LDqXJ0w6AgVGjDqcO0In0.sgREDWs78UYxIMDfa9cwYqvDgco3i_Ap4MUwmprZWN0';
       const payload = shared.getPayload();
       expect(angular.isObject(payload)).toBe(true);
       expect(payload.name).toEqual('Robértà Théô');
@@ -78,16 +78,16 @@ describe('Shared', () => {
 
     it('should return undefined if not a valid JWT', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'f0af717251950dbd4d73154fdf0a474a5c5119adad999683f5b450c460726aa';
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'f0af717251950dbd4d73154fdf0a474a5c5119adad999683f5b450c460726aa';
       const payload = shared.getPayload();
       expect(payload).toBeUndefined();
     });
 
     it('should return undefined if token looks like JWT but is not valid', function () {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'f0af717251950dbd4.d73154fdf0a474a5c5119ada.d999683f5b450c460726aa';
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'f0af717251950dbd4.d73154fdf0a474a5c5119ada.d999683f5b450c460726aa';
       const payload = shared.getPayload();
       expect(payload).toBeUndefined();
     });
@@ -103,15 +103,15 @@ describe('Shared', () => {
 
     it('should handle expired token', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNDQ1NDEzODU5LCJleHAiOjE0NDU0MTM4NjR9.FWflFgVTYu4riXLDzOAx9xy1x-qYyzwi09oN_pmoLcg';
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNDQ1NDEzODU5LCJleHAiOjE0NDU0MTM4NjR9.FWflFgVTYu4riXLDzOAx9xy1x-qYyzwi09oN_pmoLcg';
       expect(shared.isAuthenticated()).toBe(false);
     });
 
     it('should work with non-JWT token', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'foo.bar.baz';
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'foo.bar.baz';
       expect(shared.isAuthenticated()).toBe(true);
     });
 
@@ -121,9 +121,9 @@ describe('Shared', () => {
 
     it('should gracefully return without a response param', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
       shared.setToken();
-      expect(window[storageType][tokenName]).toBeUndefined();
+      expect(window[storageType][storageKeyToken]).toBeUndefined();
     });
 
     it('should set the token when tokenRoot is provided', () => {
@@ -144,15 +144,15 @@ describe('Shared', () => {
 
     it('should set string access_token', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
       const response = { access_token: 'test' };
       shared.setToken(response);
-      expect(window[storageType][tokenName]).toBe('test');
+      expect(window[storageType][storageKeyToken]).toBe('test');
     });
 
     it('should set object access_token', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
       const response = {
         access_token: {
           data: {
@@ -161,20 +161,20 @@ describe('Shared', () => {
         }
       };
       shared.setToken(response);
-      expect(window[storageType][tokenName]).toBe('access_token_object_test');
+      expect(window[storageType][storageKeyToken]).toBe('access_token_object_test');
     });
 
     it('should gracefully return if no token is passed in', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      delete window[storageType][tokenName];
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      delete window[storageType][storageKeyToken];
       const response = {
         access_token: {
           data: {}
         }
       };
       shared.setToken(response);
-      expect(window[storageType][tokenName]).toBeUndefined();
+      expect(window[storageType][storageKeyToken]).toBeUndefined();
     });
 
   });
@@ -187,10 +187,10 @@ describe('Shared', () => {
 
     it('should remove a token', () => {
       const storageType = config.storageType;
-      const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-      window[storageType][tokenName] = 'f0af717251950dbd4d73154fdf0a474a5c5119adad999683f5b450c460726aa';
+      const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+      window[storageType][storageKeyToken] = 'f0af717251950dbd4d73154fdf0a474a5c5119adad999683f5b450c460726aa';
       shared.removeToken();
-      expect(window[storageType][tokenName]).toBeUndefined();
+      expect(window[storageType][storageKeyToken]).toBeUndefined();
     });
 
   });

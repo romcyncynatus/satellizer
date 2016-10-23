@@ -70,13 +70,18 @@ describe('AuthProvider', () => {
   });
 
   it('should set tokenName', () => {
-    authProvider.tokenName = 'access_token';
-    expect(authProvider.tokenName).toEqual('access_token');
+    authProvider.storageKeyToken = 'access_token';
+    expect(authProvider.storageKeyToken).toEqual('access_token');
   });
 
-  it('should set tokenPrefix', () => {
-    authProvider.tokenPrefix = 'myApp';
-    expect(authProvider.tokenPrefix).toEqual('myApp');
+  it('should set storageKeyToken', () => {
+    authProvider.storageKeyToken = 'token_key_storage';
+    expect(authProvider.storageKeyToken).toEqual('token_key_storage');
+  });
+
+  it('should set storagePrefix', () => {
+    authProvider.storagePrefix = 'myApp';
+    expect(authProvider.storagePrefix).toEqual('myApp');
   });
 
   it('should set tokenHeader', () => {
@@ -175,8 +180,8 @@ describe('AuthProvider', () => {
 
       it('should check if user is authenticated', () => {
         const storageType = config.storageType;
-        const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-        window[storageType][tokenName] = token;
+        const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+        window[storageType][storageKeyToken] = token;
         expect(auth.isAuthenticated()).toBe(true);
       });
 
@@ -190,9 +195,9 @@ describe('AuthProvider', () => {
 
       it('should get token', () => {
         const storageType = config.storageType;
-        const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-        window[storageType][tokenName] = token;
-        expect(auth.getToken()).toEqual(window[storageType][tokenName]);
+        const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+        window[storageType][storageKeyToken] = token;
+        expect(auth.getToken()).toEqual(window[storageType][storageKeyToken]);
       });
 
     });
@@ -223,10 +228,10 @@ describe('AuthProvider', () => {
 
       it('should remove token', () => {
         const storageType = config.storageType;
-        const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-        window[storageType][tokenName] = token;
+        const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+        window[storageType][storageKeyToken] = token;
         auth.removeToken();
-        expect(window.localStorage[tokenName]).toBeUndefined();
+        expect(window.localStorage[storageKeyToken]).toBeUndefined();
       });
 
     });
@@ -239,8 +244,8 @@ describe('AuthProvider', () => {
 
       it('should get a JWT payload', () => {
         const storageType = config.storageType;
-        const tokenName = [config.tokenPrefix, config.tokenName].join('_');
-        window[storageType][tokenName] = token;
+        const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
+        window[storageType][storageKeyToken] = token;
         const payload = auth.getPayload();
         expect(payload).toBeDefined();
         expect(angular.isObject(payload)).toBe(true);
@@ -292,9 +297,9 @@ describe('AuthProvider', () => {
 
       it('should log out a user', () => {
         const storageType = config.storageType;
-        const tokenName = [config.tokenPrefix, config.tokenName].join('_');
+        const storageKeyToken = [config.storagePrefix, config.storageKeyToken].join('_');
         auth.logout();
-        expect([storageType][tokenName]).toBeUndefined();
+        expect([storageType][storageKeyToken]).toBeUndefined();
       });
 
     });

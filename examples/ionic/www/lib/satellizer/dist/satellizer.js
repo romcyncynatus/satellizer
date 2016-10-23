@@ -16,8 +16,8 @@
             this.loginUrl = '/auth/login';
             this.signupUrl = '/auth/signup';
             this.unlinkUrl = '/auth/unlink/';
-            this.tokenName = 'token';
-            this.tokenPrefix = 'satellizer';
+            this.storageKeyToken = 'token';
+            this.storagePrefix = 'satellizer';
             this.tokenHeader = 'Authorization';
             this.tokenType = 'Bearer';
             this.storageType = 'localStorage';
@@ -199,15 +199,15 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(AuthProvider.prototype, "tokenName", {
-            get: function () { return this.SatellizerConfig.tokenName; },
-            set: function (value) { this.SatellizerConfig.tokenName = value; },
+        Object.defineProperty(AuthProvider.prototype, "storageKeyToken", {
+            get: function () { return this.SatellizerConfig.storageKeyToken; },
+            set: function (value) { this.SatellizerConfig.storageKeyToken = value; },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(AuthProvider.prototype, "tokenPrefix", {
-            get: function () { return this.SatellizerConfig.tokenPrefix; },
-            set: function (value) { this.SatellizerConfig.tokenPrefix = value; },
+        Object.defineProperty(AuthProvider.prototype, "storagePrefix", {
+            get: function () { return this.SatellizerConfig.storagePrefix; },
+            set: function (value) { this.SatellizerConfig.storagePrefix = value; },
             enumerable: true,
             configurable: true
         });
@@ -401,14 +401,14 @@
             this.$window = $window;
             this.SatellizerConfig = SatellizerConfig;
             this.SatellizerStorage = SatellizerStorage;
-            var _a = this.SatellizerConfig, tokenName = _a.tokenName, tokenPrefix = _a.tokenPrefix;
-            this.prefixedTokenName = tokenPrefix ? [tokenPrefix, tokenName].join('_') : tokenName;
+            var _a = this.SatellizerConfig, storageKeyToken = _a.storageKeyToken, storagePrefix = _a.storagePrefix;
+            this.prefixedStorageKeyToken = storagePrefix ? [storagePrefix, storageKeyToken].join('_') : storageKeyToken;
         }
         Shared.prototype.getToken = function () {
-            return this.SatellizerStorage.get(this.prefixedTokenName);
+            return this.SatellizerStorage.get(this.prefixedStorageKeyToken);
         };
         Shared.prototype.getPayload = function () {
-            var token = this.SatellizerStorage.get(this.prefixedTokenName);
+            var token = this.SatellizerStorage.get(this.prefixedStorageKeyToken);
             if (token && token.split('.').length === 3) {
                 try {
                     var base64Url = token.split('.')[1];
@@ -421,7 +421,7 @@
         };
         Shared.prototype.setToken = function (response) {
             var tokenRoot = this.SatellizerConfig.tokenRoot;
-            var tokenName = this.SatellizerConfig.tokenName;
+            var storageKeyToken = this.SatellizerConfig.storageKeyToken;
             var accessToken = response && response.access_token;
             var token;
             if (accessToken) {
@@ -434,17 +434,17 @@
             }
             if (!token && response) {
                 var tokenRootData = tokenRoot && tokenRoot.split('.').reduce(function (o, x) { return o[x]; }, response.data);
-                token = tokenRootData ? tokenRootData[tokenName] : response.data && response.data[tokenName];
+                token = tokenRootData ? tokenRootData[storageKeyToken] : response.data && response.data[storageKeyToken];
             }
             if (token) {
-                this.SatellizerStorage.set(this.prefixedTokenName, token);
+                this.SatellizerStorage.set(this.prefixedStorageKeyToken, token);
             }
         };
         Shared.prototype.removeToken = function () {
-            this.SatellizerStorage.remove(this.prefixedTokenName);
+            this.SatellizerStorage.remove(this.prefixedStorageKeyToken);
         };
         Shared.prototype.isAuthenticated = function () {
-            var token = this.SatellizerStorage.get(this.prefixedTokenName);
+            var token = this.SatellizerStorage.get(this.prefixedStorageKeyToken);
             if (token) {
                 if (token.split('.').length === 3) {
                     try {
@@ -464,7 +464,7 @@
             return false; // Fail: No token at all
         };
         Shared.prototype.logout = function () {
-            this.SatellizerStorage.remove(this.prefixedTokenName);
+            this.SatellizerStorage.remove(this.prefixedStorageKeyToken);
             return this.$q.when();
         };
         Shared.prototype.setStorageType = function (type) {
@@ -911,9 +911,9 @@
                     return config;
                 }
                 if (_this.SatellizerShared.isAuthenticated() && _this.SatellizerConfig.httpInterceptor()) {
-                    var tokenName = _this.SatellizerConfig.tokenPrefix ?
-                        [_this.SatellizerConfig.tokenPrefix, _this.SatellizerConfig.tokenName].join('_') : _this.SatellizerConfig.tokenName;
-                    var token = _this.SatellizerStorage.get(tokenName);
+                    var storageKeyToken = _this.SatellizerConfig.storagePrefix ?
+                        [_this.SatellizerConfig.storagePrefix, _this.SatellizerConfig.storageKeyToken].join('_') : _this.SatellizerConfig.storageKeyToken;
+                    var token = _this.SatellizerStorage.get(storageKeyToken);
                     if (_this.SatellizerConfig.tokenHeader && _this.SatellizerConfig.tokenType) {
                         token = _this.SatellizerConfig.tokenType + ' ' + token;
                     }

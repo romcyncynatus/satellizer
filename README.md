@@ -267,11 +267,12 @@ $authProvider.baseUrl = '/';
 $authProvider.loginUrl = '/auth/login';
 $authProvider.signupUrl = '/auth/signup';
 $authProvider.unlinkUrl = '/auth/unlink/';
-$authProvider.tokenName = 'token';
-$authProvider.tokenPrefix = 'satellizer';
 $authProvider.tokenHeader = 'Authorization';
 $authProvider.tokenType = 'Bearer';
+$authProvider.storagePrefix = 'satellizer';
 $authProvider.storageType = 'localStorage';
+$authProvider.storageKeyToken = 'token';
+$authProvider.storageKeyIsGuest = 'is_guest';
 
 // Facebook
 $authProvider.facebook({

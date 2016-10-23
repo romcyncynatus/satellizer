@@ -7,11 +7,14 @@ export default class Config {
   loginUrl = '/auth/login';
   signupUrl = '/auth/signup';
   unlinkUrl = '/auth/unlink/';
+  createGuestUrl = '/auth/guest/create/'
   tokenName = 'token';
-  tokenPrefix = 'satellizer';
   tokenHeader = 'Authorization';
   tokenType = 'Bearer';
   storageType = 'localStorage';
+  storagePrefix = 'satellizer';
+  storageKeyToken = 'token';
+  storageKeyIsGuest = 'is_guest';
   tokenRoot = null;
   withCredentials = false;
   providers = {

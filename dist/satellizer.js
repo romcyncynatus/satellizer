@@ -16,11 +16,14 @@ var Config = (function () {
         this.loginUrl = '/auth/login';
         this.signupUrl = '/auth/signup';
         this.unlinkUrl = '/auth/unlink/';
+        this.createGuestUrl = '/auth/guest/create/';
         this.tokenName = 'token';
-        this.tokenPrefix = 'satellizer';
         this.tokenHeader = 'Authorization';
         this.tokenType = 'Bearer';
         this.storageType = 'localStorage';
+        this.storagePrefix = 'satellizer';
+        this.storageKeyToken = 'tokenkeyname';
+        this.storageKeyIsGuest = 'is_guest';
         this.tokenRoot = null;
         this.withCredentials = false;
         this.providers = {
@@ -193,21 +196,39 @@ var AuthProvider = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(AuthProvider.prototype, "createGuestUrl", {
+        get: function () { return this.SatellizerConfig.createGuestUrl; },
+        set: function (value) { this.SatellizerConfig.createGuestUrl = value; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AuthProvider.prototype, "tokenRoot", {
         get: function () { return this.SatellizerConfig.tokenRoot; },
         set: function (value) { this.SatellizerConfig.tokenRoot = value; },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AuthProvider.prototype, "tokenName", {
-        get: function () { return this.SatellizerConfig.tokenName; },
-        set: function (value) { this.SatellizerConfig.tokenName = value; },
+    Object.defineProperty(AuthProvider.prototype, "storagePrefix", {
+        get: function () { return this.SatellizerConfig.storagePrefix; },
+        set: function (value) { this.SatellizerConfig.storagePrefix = value; },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AuthProvider.prototype, "tokenPrefix", {
-        get: function () { return this.SatellizerConfig.tokenPrefix; },
-        set: function (value) { this.SatellizerConfig.tokenPrefix = value; },
+    Object.defineProperty(AuthProvider.prototype, "storageKeyToken", {
+        get: function () { return this.SatellizerConfig.storageKeyToken; },
+        set: function (value) { this.SatellizerConfig.storageKeyToken = value; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AuthProvider.prototype, "storageKeyIsGuest", {
+        get: function () { return this.SatellizerConfig.storageKeyIsGuest; },
+        set: function (value) { this.SatellizerConfig.storageKeyIsGuest = value; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AuthProvider.prototype, "tokenName", {
+        get: function () { return this.SatellizerConfig.tokenName; },
+        set: function (value) { this.SatellizerConfig.tokenName = value; },
         enumerable: true,
         configurable: true
     });
@@ -294,12 +315,14 @@ var AuthProvider = (function () {
     AuthProvider.prototype.$get = function (SatellizerShared, SatellizerLocal, SatellizerOAuth) {
         return {
             login: function (user, options) { return SatellizerLocal.login(user, options); },
+            createGuest: function (options) { return SatellizerLocal.createGuest(options); },
             signup: function (user, options) { return SatellizerLocal.signup(user, options); },
             logout: function () { return SatellizerShared.logout(); },
             authenticate: function (name, data) { return SatellizerOAuth.authenticate(name, data); },
             link: function (name, data) { return SatellizerOAuth.authenticate(name, data); },
             unlink: function (name, options) { return SatellizerOAuth.unlink(name, options); },
             isAuthenticated: function () { return SatellizerShared.isAuthenticated(); },
+            isGuest: function () { return SatellizerShared.isGuest(); },
             getPayload: function () { return SatellizerShared.getPayload(); },
             getToken: function () { return SatellizerShared.getToken(); },
             setToken: function (token) { return SatellizerShared.setToken({ access_token: token }); },
@@ -401,14 +424,15 @@ var Shared = (function () {
         this.$window = $window;
         this.SatellizerConfig = SatellizerConfig;
         this.SatellizerStorage = SatellizerStorage;
-        var _a = this.SatellizerConfig, tokenName = _a.tokenName, tokenPrefix = _a.tokenPrefix;
-        this.prefixedTokenName = tokenPrefix ? [tokenPrefix, tokenName].join('_') : tokenName;
+        var _a = this.SatellizerConfig, storagePrefix = _a.storagePrefix, storageKeyToken = _a.storageKeyToken, storageKeyIsGuest = _a.storageKeyIsGuest;
+        this.prefixedStorageKeyToken = storagePrefix ? [storagePrefix, storageKeyToken].join('_') : storageKeyToken;
+        this.prefixedStorageKeyIsGuest = storagePrefix ? [storagePrefix, storageKeyIsGuest].join('_') : storageKeyIsGuest;
     }
     Shared.prototype.getToken = function () {
-        return this.SatellizerStorage.get(this.prefixedTokenName);
+        return this.SatellizerStorage.get(this.prefixedStorageKeyToken);
     };
     Shared.prototype.getPayload = function () {
-        var token = this.SatellizerStorage.get(this.prefixedTokenName);
+        var token = this.SatellizerStorage.get(this.prefixedStorageKeyToken);
         if (token && token.split('.').length === 3) {
             try {
                 var base64Url = token.split('.')[1];
@@ -419,7 +443,8 @@ var Shared = (function () {
             }
         }
     };
-    Shared.prototype.setToken = function (response) {
+    Shared.prototype.setToken = function (response, isGuest) {
+        if (isGuest === void 0) { isGuest = false; }
         var tokenRoot = this.SatellizerConfig.tokenRoot;
         var tokenName = this.SatellizerConfig.tokenName;
         var accessToken = response && response.access_token;
@@ -437,14 +462,18 @@ var Shared = (function () {
             token = tokenRootData ? tokenRootData[tokenName] : response.data && response.data[tokenName];
         }
         if (token) {
-            this.SatellizerStorage.set(this.prefixedTokenName, token);
+            this.SatellizerStorage.set(this.prefixedStorageKeyToken, token);
+            this.SatellizerStorage.set(this.prefixedStorageKeyIsGuest, isGuest ? "true" : "false");
         }
     };
     Shared.prototype.removeToken = function () {
-        this.SatellizerStorage.remove(this.prefixedTokenName);
+        this.SatellizerStorage.remove(this.prefixedStorageKeyToken);
+        this.SatellizerStorage.remove(this.prefixedStorageKeyIsGuest);
     };
-    Shared.prototype.isAuthenticated = function () {
-        var token = this.SatellizerStorage.get(this.prefixedTokenName);
+    Shared.prototype.isAuthenticated = function (ignoreGuest) {
+        if (ignoreGuest === void 0) { ignoreGuest = true; }
+        var token = this.SatellizerStorage.get(this.prefixedStorageKeyToken);
+        var result = false;
         if (token) {
             if (token.split('.').length === 3) {
                 try {
@@ -452,19 +481,33 @@ var Shared = (function () {
                     var base64 = base64Url.replace('-', '+').replace('_', '/');
                     var exp = JSON.parse(this.$window.atob(base64)).exp;
                     if (typeof exp === 'number') {
-                        return Math.round(new Date().getTime() / 1000) < exp;
+                        result = Math.round(new Date().getTime() / 1000) < exp;
                     }
                 }
                 catch (e) {
-                    return true; // Pass: Non-JWT token that looks like JWT
+                    result = true; // Pass: Non-JWT token that looks like JWT
                 }
             }
-            return true; // Pass: All other tokens
+            else {
+                result = true; // Pass: All other (non JWT) tokens
+            }
         }
-        return false; // Fail: No token at all
+        // If required, mark guest as un-authenticated
+        var isGuestStr = this.SatellizerStorage.get(this.prefixedStorageKeyIsGuest);
+        var isGuest = (isGuestStr == "true") ? true : false;
+        if (ignoreGuest && isGuest) {
+            result = false;
+        }
+        return result;
+    };
+    Shared.prototype.isGuest = function () {
+        var isGuestStr = this.SatellizerStorage.get(this.prefixedStorageKeyIsGuest);
+        var isGuest = (isGuestStr == "true") ? true : false;
+        return (this.isAuthenticated(false) && isGuest);
     };
     Shared.prototype.logout = function () {
-        this.SatellizerStorage.remove(this.prefixedTokenName);
+        this.SatellizerStorage.remove(this.prefixedStorageKeyToken);
+        this.SatellizerStorage.remove(this.prefixedStorageKeyIsGuest);
         return this.$q.when();
     };
     Shared.prototype.setStorageType = function (type) {
@@ -499,6 +542,18 @@ var Local = (function () {
         options.method = options.method || 'POST';
         options.withCredentials = options.withCredentials || this.SatellizerConfig.withCredentials;
         return this.$http(options);
+    };
+    Local.prototype.createGuest = function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        options.url = options.url ? options.url : joinUrl(this.SatellizerConfig.baseUrl, this.SatellizerConfig.createGuestUrl);
+        options.data = null || options.data;
+        options.method = options.method || 'POST';
+        options.withCredentials = options.withCredentials || this.SatellizerConfig.withCredentials;
+        return this.$http(options).then(function (response) {
+            _this.SatellizerShared.setToken(response, true);
+            return response;
+        });
     };
     Local.$inject = ['$http', 'SatellizerConfig', 'SatellizerShared'];
     return Local;
@@ -911,9 +966,9 @@ var Interceptor = (function () {
                 return config;
             }
             if (_this.SatellizerShared.isAuthenticated() && _this.SatellizerConfig.httpInterceptor()) {
-                var tokenName = _this.SatellizerConfig.tokenPrefix ?
-                    [_this.SatellizerConfig.tokenPrefix, _this.SatellizerConfig.tokenName].join('_') : _this.SatellizerConfig.tokenName;
-                var token = _this.SatellizerStorage.get(tokenName);
+                var storageKeyToken = _this.SatellizerConfig.storagePrefix ?
+                    [_this.SatellizerConfig.storagePrefix, _this.SatellizerConfig.storageKeyToken].join('_') : _this.SatellizerConfig.storageKeyToken;
+                var token = _this.SatellizerStorage.get(storageKeyToken);
                 if (_this.SatellizerConfig.tokenHeader && _this.SatellizerConfig.tokenType) {
                     token = _this.SatellizerConfig.tokenType + ' ' + token;
                 }
