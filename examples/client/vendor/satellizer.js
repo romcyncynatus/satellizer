@@ -321,7 +321,7 @@ var AuthProvider = (function () {
             authenticate: function (name, data) { return SatellizerOAuth.authenticate(name, data); },
             link: function (name, data) { return SatellizerOAuth.authenticate(name, data); },
             unlink: function (name, options) { return SatellizerOAuth.unlink(name, options); },
-            isAuthenticated: function () { return SatellizerShared.isAuthenticated(); },
+            isAuthenticated: function (ignoreGuest) { return SatellizerShared.isAuthenticated(ignoreGuest); },
             isGuest: function () { return SatellizerShared.isGuest(); },
             getPayload: function () { return SatellizerShared.getPayload(); },
             getToken: function () { return SatellizerShared.getToken(); },
@@ -965,7 +965,7 @@ var Interceptor = (function () {
             if (config['skipAuthorization']) {
                 return config;
             }
-            if (_this.SatellizerShared.isAuthenticated() && _this.SatellizerConfig.httpInterceptor()) {
+            if (_this.SatellizerShared.isAuthenticated(false) && _this.SatellizerConfig.httpInterceptor()) {
                 var storageKeyToken = _this.SatellizerConfig.storagePrefix ?
                     [_this.SatellizerConfig.storagePrefix, _this.SatellizerConfig.storageKeyToken].join('_') : _this.SatellizerConfig.storageKeyToken;
                 var token = _this.SatellizerStorage.get(storageKeyToken);
